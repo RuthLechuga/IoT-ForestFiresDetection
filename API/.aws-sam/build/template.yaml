@@ -1,0 +1,64 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: IoT Forest Fire Detection save the sensor information
+Globals:
+  Function:
+    Timeout: 10
+Resources:
+  IoTForestFireDetectionFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: IoTForestFireDetectionFunction
+      Handler: app.lambdaHandler
+      Runtime: nodejs18.x
+      Architectures:
+      - x86_64
+      Events:
+        IoTForestFireDetection:
+          Type: Api
+          Properties:
+            Path: /iot-forest-fire-detection
+            Method: post
+      Environment:
+        Variables:
+          NODE_OPTIONS: ' --enable-source-maps'
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        EntryPoints:
+        - app.ts
+        Minify: true
+        Sourcemap: true
+        Target: es2020
+      SamResourceId: IoTForestFireDetectionFunction
+  ApplicationResourceGroup:
+    Type: AWS::ResourceGroups::Group
+    Properties:
+      Name:
+        Fn::Sub: ApplicationInsights-SAM-${AWS::StackName}
+      ResourceQuery:
+        Type: CLOUDFORMATION_STACK_1_0
+  ApplicationInsightsMonitoring:
+    Type: AWS::ApplicationInsights::Application
+    Properties:
+      ResourceGroupName:
+        Ref: ApplicationResourceGroup
+      AutoConfigurationEnabled: 'true'
+Outputs:
+  IoTForestFireDetectionApi:
+    Description: API Gateway endpoint URL for Prod stage for IoT Forest Fire Detection
+      Project
+    Value:
+      Fn::Sub: https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/IoTForestFireDetection/
+  IoTForestFireDetectionFunction:
+    Description: IoTForestFireDetectionApi Lambda Function ARN
+    Value:
+      Fn::GetAtt:
+      - IoTForestFireDetectionFunction
+      - Arn
+  IoTForestFireDetectionFunctionIamRole:
+    Description: Implicit IAM Role created for IoTForestFireDetectionApi
+    Value:
+      Fn::GetAtt:
+      - IoTForestFireDetectionFunctionRole
+      - Arn

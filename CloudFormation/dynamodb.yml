@@ -1,0 +1,20 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Resources:
+  IoTForestFiresDetection:
+    Type: 'AWS::DynamoDB::Table'
+    Properties:
+      TableName: IoTForestFiresDetection
+      AttributeDefinitions:
+        - AttributeName: "device"
+          AttributeType: "S"
+        - AttributeName: "datetime"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "device"
+          KeyType: "HASH"
+        - AttributeName: "datetime"
+          KeyType: "RANGE"
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
